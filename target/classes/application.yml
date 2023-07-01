@@ -1,0 +1,44 @@
+server:
+  port: 8085
+#eureka:
+#  client:
+#    register-with-eureka: true
+#    fetch-registry: true
+#  instance:
+#    hostname: localhost
+spring:
+  application:
+    name: gateway-service
+#  datasource:
+#    password: root
+#    url: jdbc:mysql://localhost:3306/e-mandi?useSSL=true
+#    username: root
+#  jpa:
+#    hibernate:
+#      ddl-auto: 'update '
+#    show-sql: true
+  cloud:
+    gateway:
+      routes:
+        - id: admin-service
+          uri: http://localhost:8081
+          predicates:
+            - Path= /admin/**
+        - id: customer-service
+          uri: http://localhost:8082
+          predicates:
+            - Path= /customer/**
+        - id: product-service
+          uri: http://localhost:8084
+          predicates:
+            - Path= /product/**
+        - id: order-service
+          uri: http://localhost:8086
+          predicates:
+            - Path= /order/**
+        - id: payment-service
+          uri: http://localhost:8085
+          predicates:
+            - Path= /payment/**
+
+
