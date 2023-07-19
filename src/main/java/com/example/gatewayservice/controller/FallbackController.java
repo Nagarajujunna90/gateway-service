@@ -10,24 +10,32 @@ import org.springframework.web.bind.annotation.RestController;
 public class FallbackController {
     @PostMapping("/userServiceFallBack")
     public ResponseEntity<?> fallback() {
-        return new ResponseEntity<>("Due to server issue not able to serve you", HttpStatus.TOO_MANY_REQUESTS);
+        return new ResponseEntity<>("Due to server issue not able to serve you", HttpStatus.INTERNAL_SERVER_ERROR);
     }
+
     @GetMapping("/userServiceFallBack")
-    public ResponseEntity<?> falldback() {
-        return new ResponseEntity<>("Due to server issue not able to serve you", HttpStatus.TOO_MANY_REQUESTS);
+    public ResponseEntity<?> userServiceFallBack() {
+        return new ResponseEntity<>("Due to server issue not able to serve you", HttpStatus.INTERNAL_SERVER_ERROR);
     }
+
     @GetMapping("/orderServiceFallBack")
-    public String orderServiceFallback() {
-        return "Order service is down!";
+    public ResponseEntity<?> orderServiceFallback() {
+     return  new ResponseEntity<>("Order service is down!", HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     @GetMapping("/paymentServiceFallBack")
-    public String paymentServiceFallback() {
-        return "Payment service is down!";
+    public ResponseEntity<?> paymentServiceFallback() {
+        return   new ResponseEntity<>("Payment service is down!", HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     @GetMapping("/productServiceFallBack")
-    public String productServiceFallback() {
-        return "Product service is down!";
+    public ResponseEntity<?> productServiceFallback() {
+        return  new ResponseEntity<>("Product service is down!", HttpStatus.INTERNAL_SERVER_ERROR);
     }
+
+    @GetMapping("/cartServiceFallBack")
+    public ResponseEntity<?> cartServiceFallback() {
+        return  new ResponseEntity<>("Cart service is down!", HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
 }

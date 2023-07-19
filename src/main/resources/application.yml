@@ -1,5 +1,5 @@
 server:
-  port: 8085
+  port: 8086
 spring:
   jackson:
     serialization:
@@ -9,13 +9,9 @@ spring:
       globalcors:
         corsConfigurations:
           '[/**]':
-            allowedOrigins: 'http://localhost:4200'
+            allowedOrigins: "*"
             allowedHeaders: "*"
-            allowedMethods:
-              - GET
-              - POST
-              - PUT
-              - DELETE
+            allowedMethods: "*"
       routes:
         - id: admin-service
           uri: http://localhost:8081
@@ -43,6 +39,21 @@ spring:
           uri: http://localhost:8084
           predicates:
             - Path=/emandi/v1/product/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: myCircuitBreaker
+                fallbackUri: forward:/orderServiceFallBack
+        - id: cart-service
+          uri: http://localhost:8085
+          predicates:
+            - Path=/emandi/v1/product/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: myCircuitBreaker
+                fallbackUri: forward:/orderServiceFallBack
+
 resilience4j.circuitbreaker:
   configs:
     default:
@@ -77,22 +88,22 @@ resilience4j.ratelimiter:
       timeout-duration: 0
       registerHealthIndicator: true
     #rateLimiterAspectOrder: 3
-#resilience4j.retry:
-#    instances:
-#      getInvoiceRetry:
-#        enable-exponential-backoff: true
-#        max-attempts: 3
-#        retry-exceptions: org.springframework.web.client.ResourceAccessException
-#        wait-duration: 2s
-#      #retryAspectOrder: 5
-##resilience4j.timelimiter:
-##    instances:
-##      getMessageTL:
-##        cancel-running-future: false
-##        timeout-duration: 1s
-##      #timeLimiterAspectOrder : 2
-#
-#
+resilience4j.retry:
+    instances:
+      getInvoiceRetry:
+        enable-exponential-backoff: true
+        max-attempts: 3
+        retry-exceptions: org.springframework.web.client.ResourceAccessException
+        wait-duration: 2s
+      #retryAspectOrder: 5
+resilience4j.timelimiter:
+    instances:
+      getMessageTL:
+        cancel-running-future: false
+        timeout-duration: 1s
+      #timeLimiterAspectOrder : 2
+
+
 management:
   endpoints:
     web:
