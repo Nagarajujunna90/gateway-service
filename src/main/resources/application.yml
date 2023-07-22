@@ -16,11 +16,16 @@ spring:
         - id: admin-service
           uri: http://localhost:8081
           predicates:
-            - Path=/emandi/v1/admin/**
+            - Path=/admin/v1/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: myCircuitBreaker
+                fallbackUri: forward:/userServiceFallBack
         - id: user-service
           uri: http://localhost:8082
           predicates:
-            - Path=/emandi/v1/user/**
+            - Path=/user/v1/**
           filters:
             - name: CircuitBreaker
               args:
@@ -29,7 +34,7 @@ spring:
         - id: order-service
           uri: http://localhost:8083
           predicates:
-            - Path=/emandi/v1/order/**
+            - Path=/order/v1/**
           filters:
             - name: CircuitBreaker
               args:
@@ -38,7 +43,7 @@ spring:
         - id: product-service
           uri: http://localhost:8084
           predicates:
-            - Path=/emandi/v1/product/**
+            - Path=/product/v1/**
           filters:
             - name: CircuitBreaker
               args:
@@ -47,7 +52,7 @@ spring:
         - id: cart-service
           uri: http://localhost:8085
           predicates:
-            - Path=/emandi/v1/product/**
+            - Path=/cart/v1/**
           filters:
             - name: CircuitBreaker
               args:
