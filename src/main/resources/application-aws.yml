@@ -1,0 +1,123 @@
+
+spring:
+  jackson:
+    serialization:
+      indent-output: true
+  cloud:
+    gateway:
+      globalcors:
+        corsConfigurations:
+          '[/**]':
+            allowedOrigins: "*"
+            allowedHeaders: "*"
+            allowedMethods: "*"
+      routes:
+        - id: admin-service
+          uri: http://localhost:8081
+          predicates:
+            - Path=/admin/v1/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: myCircuitBreaker
+                fallbackUri: forward:/userServiceFallBack
+        - id: user-service
+          uri: http://localhost:8082
+          predicates:
+            - Path=/user/v1/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: myCircuitBreaker
+                fallbackUri: forward:/userServiceFallBack
+        - id: order-service
+          uri: http://localhost:8083
+          predicates:
+            - Path=/order/v1/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: myCircuitBreaker
+                fallbackUri: forward:/orderServiceFallBack
+        - id: product-service
+          uri: http://localhost:8084
+          predicates:
+            - Path=/product/v1/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: myCircuitBreaker
+                fallbackUri: forward:/orderServiceFallBack
+        - id: cart-service
+          uri: http://localhost:8085
+          predicates:
+            - Path=/cart/v1/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: myCircuitBreaker
+                fallbackUri: forward:/orderServiceFallBack
+
+resilience4j.circuitbreaker:
+  configs:
+    default:
+      slidingWindowSize: 10
+      slidingWindowType: COUNT_BASED
+      permittedNumberOfCallsInHalfOpenState: 3
+      waitDurationInOpenState: 5s
+      failureRateThreshold: 50
+      minimumNumberOfCalls: 5
+      eventConsumerBufferSize: 10
+      registerHealthIndicator: true
+    someShared:
+      slidingWindowSize: 50
+      permittedNumberOfCallsInHalfOpenState: 10
+  instances:
+    myCircuitBreaker:
+      registerHealthIndicator: true
+      eventConsumerBufferSize: 10
+      failureRateThreshold: 50
+      minimumNumberOfCalls: 5
+      automaticTransitionFromOpenToHalfOpenEnabled: true
+      waitDurationInOpenState: 5s
+      permittedNumberOfCallsInHalfOpenState: 3
+      slidingWindowSize: 10
+      slidingWindowType: COUNT_BASED
+      #circuitBreakerAspectOrder: 4
+resilience4j.ratelimiter:
+  instances:
+    getMessageRateLimit:
+      limit-for-period: 2
+      limit-refresh-period: 10s
+      timeout-duration: 0
+      registerHealthIndicator: true
+    #rateLimiterAspectOrder: 3
+resilience4j.retry:
+    instances:
+      getInvoiceRetry:
+        enable-exponential-backoff: true
+        max-attempts: 3
+        retry-exceptions: org.springframework.web.client.ResourceAccessException
+        wait-duration: 2s
+      #retryAspectOrder: 5
+resilience4j.timelimiter:
+    instances:
+      getMessageTL:
+        cancel-running-future: false
+        timeout-duration: 1s
+      #timeLimiterAspectOrder : 2
+
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  health:
+    circuitbreakers:
+      enabled: true
+    ratelimiters:
+      enabled: true
+  endpoint:
+    health:
+      show-details: always
