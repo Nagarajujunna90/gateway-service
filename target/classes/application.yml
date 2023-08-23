@@ -1,5 +1,5 @@
 server:
-  port: 8085
+  port: 8086
 spring:
   jackson:
     serialization:
@@ -9,22 +9,23 @@ spring:
       globalcors:
         corsConfigurations:
           '[/**]':
-            allowedOrigins: 'http://localhost:4200'
+            allowedOrigins: "*"
             allowedHeaders: "*"
-            allowedMethods:
-              - GET
-              - POST
-              - PUT
-              - DELETE
+            allowedMethods: "*"
       routes:
         - id: admin-service
           uri: http://localhost:8081
           predicates:
-            - Path=/emandi/v1/admin/**
+            - Path=/admin/v1/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: myCircuitBreaker
+                fallbackUri: forward:/userServiceFallBack
         - id: user-service
           uri: http://localhost:8082
           predicates:
-            - Path=/emandi/v1/user/**
+            - Path=/user/v1/**
           filters:
             - name: CircuitBreaker
               args:
@@ -33,7 +34,7 @@ spring:
         - id: order-service
           uri: http://localhost:8083
           predicates:
-            - Path=/emandi/v1/order/**
+            - Path=/order/v1/**
           filters:
             - name: CircuitBreaker
               args:
@@ -42,7 +43,22 @@ spring:
         - id: product-service
           uri: http://localhost:8084
           predicates:
-            - Path=/emandi/v1/product/**
+            - Path=/product/v1/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: myCircuitBreaker
+                fallbackUri: forward:/orderServiceFallBack
+        - id: cart-service
+          uri: http://localhost:8085
+          predicates:
+            - Path=/cart/v1/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: myCircuitBreaker
+                fallbackUri: forward:/orderServiceFallBack
+
 resilience4j.circuitbreaker:
   configs:
     default:
@@ -77,22 +93,22 @@ resilience4j.ratelimiter:
       timeout-duration: 0
       registerHealthIndicator: true
     #rateLimiterAspectOrder: 3
-#resilience4j.retry:
-#    instances:
-#      getInvoiceRetry:
-#        enable-exponential-backoff: true
-#        max-attempts: 3
-#        retry-exceptions: org.springframework.web.client.ResourceAccessException
-#        wait-duration: 2s
-#      #retryAspectOrder: 5
-##resilience4j.timelimiter:
-##    instances:
-##      getMessageTL:
-##        cancel-running-future: false
-##        timeout-duration: 1s
-##      #timeLimiterAspectOrder : 2
-#
-#
+resilience4j.retry:
+    instances:
+      getInvoiceRetry:
+        enable-exponential-backoff: true
+        max-attempts: 3
+        retry-exceptions: org.springframework.web.client.ResourceAccessException
+        wait-duration: 2s
+      #retryAspectOrder: 5
+resilience4j.timelimiter:
+    instances:
+      getMessageTL:
+        cancel-running-future: false
+        timeout-duration: 1s
+      #timeLimiterAspectOrder : 2
+
+
 management:
   endpoints:
     web:
